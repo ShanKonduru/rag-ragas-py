@@ -1,2 +1,4 @@
 @echo off
-python run.py
+REM python run.py
+python new_run.py
+

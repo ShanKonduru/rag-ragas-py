@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 from ragas import evaluate
 from ragas.metrics import (
@@ -12,22 +13,20 @@ from ragas.metrics import (
 
 from langchain.chains import RetrievalQA
 
-from langchain_community.llms import Ollama
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_community.embeddings  import HuggingFaceEmbeddings
+# from langchain_community.llms import Ollama
+from langchain_openai import ChatOpenAI
 
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 
-class OllamaWrapper(Ollama):
-    def set_run_config(self, run_config):
-        # Ollama doesn't inherently use a run config in the same way as OpenAI
-        # You might need to adapt this if Ragas expects specific info in the config
-        pass
-
 def main():
     print("Hello World!!!")
+    
+    load_dotenv()
+    
+    
     # 1. Load Documents (using sample text for now)
     documents = [
         "The capital of Canada is Ottawa. It is located in the province of Ontario.",
@@ -43,7 +42,8 @@ def main():
     chunks = text_splitter.create_documents(documents)
 
     # 3. Create Embeddings
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    
+    embeddings = OpenAIEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # 4. Create Vector Store
     db = FAISS.from_documents(chunks, embeddings)
@@ -54,8 +54,8 @@ def main():
 
     # 6. Initialize Ollama LLM
     # Replace with your Ollama URL and model
-    ollama_llm = OllamaWrapper(base_url='http://localhost:11434', model="llama2:13b")    
     # ollama_llm = Ollama(base_url='http://localhost:11434', model="llama2:13b")
+    openai_llm = ChatOpenAI(temperature=0.6)
 
     # 7. Create Prompt Template
     prompt_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say you don't know.
@@ -68,7 +68,7 @@ def main():
 
     # 8. Create RAG Chain
     rag_chain = RetrievalQA.from_llm(
-        ollama_llm, retriever=retriever, prompt=PROMPT, return_source_documents=True)
+        openai_llm, retriever=retriever, prompt=PROMPT, return_source_documents=True)
 
     # Example Usage
     query = "What is the capital of Canada?"
@@ -76,42 +76,24 @@ def main():
     print(f"Question: {query}")
     print(f"Answer: {result['result']}")
 
-    query = "Tell me something about Calgary."
-    result = rag_chain({"query": query})
-    print(f"\nQuestion: {query}")
-    print(f"Answer: {result['result']}")
+    # query = "Tell me something about Calgary."
+    # result = rag_chain({"query": query})
+    # print(f"\nQuestion: {query}")
+    # print(f"Answer: {result['result']}")
 
-    query = "What is the highest mountain in Canada?"
-    result = rag_chain({"query": query})
-    print(f"\nQuestion: {query}")
-    print(f"Answer: {result['result']}")
+    # query = "What is the highest mountain in Canada?"
+    # result = rag_chain({"query": query})
+    # print(f"\nQuestion: {query}")
+    # print(f"Answer: {result['result']}")
+    
+    
+    print(f"**************** Generate Evaluation Data ********************")
 
     # 9. Generate Evaluation Data
     eval_data = [
         {
             "question": "What is the capital of Canada?",
             "ground_truths": ["Ottawa"],
-        },
-        {
-            "question": "Tell me something interesting about Calgary.",
-            "ground_truths": ["known for the Calgary Stampede"],
-        },
-        {
-            "question": "Where are the Rocky Mountains located?",
-            "ground_truths": ["western North America"],
-        },
-        {
-            "question": "What Canadian food is often made in Quebec?",
-            "ground_truths": ["Maple syrup"],
-        },
-        {
-            "question": "Which sport is popular in Canada and has NHL teams?",
-            "ground_truths": ["Ice hockey"],
-        },
-        {
-            "question": "What is the largest city in Canada?",
-            # Ground truth not directly in our context
-            "ground_truths": ["Toronto"],
         }
     ]
 
@@ -128,12 +110,12 @@ def main():
 
     # 11. Evaluate using Ragas
     metrics = [
-        Faithfulness(llm=ollama_llm),
-        AnswerRelevancy(llm=ollama_llm),
-        ContextRecall(llm=ollama_llm),
-        ContextPrecision(llm=ollama_llm),
-        AnswerCorrectness(llm=ollama_llm),
-        AnswerSimilarity()
+        Faithfulness(llm=openai_llm),
+        AnswerRelevancy(llm=openai_llm),
+        ContextRecall(llm=openai_llm),
+        ContextPrecision(llm=openai_llm),
+        AnswerCorrectness(llm=openai_llm),
+        AnswerSimilarity( embeddings=embeddings)
         ]
     eval_results = evaluate(predictions, metrics=metrics)
 
