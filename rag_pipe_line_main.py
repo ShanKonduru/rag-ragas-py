@@ -49,28 +49,28 @@ def main():
     print(f"Answer: {result}")
 
     #7. Use Hardcoded Questions and Ground Truths (basic example)
-    questions = [
-        "What was the President's main message regarding Russia's actions in Ukraine?",
-        "What specific actions did the President announce the US would take against Russia?",
-        "Which countries were mentioned as allies in response to the situation in Ukraine?",
-        "What kind of assistance is the US providing to Ukraine?",
-        "Did the President suggest any potential for US military involvement in Ukraine?",
-        "What was the President's message to the Ukrainian Ambassador present at the address?"
-    ]
+    # questions = [
+    #     "What was the President's main message regarding Russia's actions in Ukraine?",
+    #     "What specific actions did the President announce the US would take against Russia?",
+    #     "Which countries were mentioned as allies in response to the situation in Ukraine?",
+    #     "What kind of assistance is the US providing to Ukraine?",
+    #     "Did the President suggest any potential for US military involvement in Ukraine?",
+    #     "What was the President's message to the Ukrainian Ambassador present at the address?"
+    # ]
 
-    ground_truths = [
-        "Russia's Vladimir Putin badly miscalculated by trying to shake the foundations of the free world and invade Ukraine.",
-        "Enforcing powerful economic sanctions",
-        "Twenty-seven members of the European Union (including France, Germany, Italy)",
-        "Military assistance",
-        "Let me be clear, our forces are not engaged and will not engage in conflict with Russian forces in Ukraine",
-        "The President asked everyone in the Chamber to rise if able and show that the United States of America stands with the Ukrainian people, sending an unmistakable signal to Ukraine and the world."
-    ]
+    # ground_truths = [
+    #     "Russia's Vladimir Putin badly miscalculated by trying to shake the foundations of the free world and invade Ukraine.",
+    #     "Enforcing powerful economic sanctions",
+    #     "Twenty-seven members of the European Union (including France, Germany, Italy)",
+    #     "Military assistance",
+    #     "Let me be clear, our forces are not engaged and will not engage in conflict with Russian forces in Ukraine",
+    #     "The President asked everyone in the Chamber to rise if able and show that the United States of America stands with the Ukrainian people, sending an unmistakable signal to Ukraine and the world."
+    # ]
 
-    # # 7. Generate Questions and Ground Truths (basic example)
-    # questions, ground_truths = rag_pipeline.generate_questions_and_ground_truths(document, num_questions=6)
-    # print("\nGenerated Questions:", questions)
-    # print("Generated Ground Truths:", ground_truths)
+    # 7. Generate Questions and Ground Truths (basic example)
+    questions, ground_truths = rag_pipeline.generate_questions_and_ground_truths(document, num_questions=6)
+    print("\nGenerated Questions:", questions)
+    print("Generated Ground Truths:", ground_truths)
 
     # 8. Evaluate RAG Pipeline
     if rag_pipeline.retriever:
