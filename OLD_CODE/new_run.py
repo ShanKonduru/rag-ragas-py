@@ -14,7 +14,6 @@ from langchain.schema.output_parser import StrOutputParser
 
 from datasets import Dataset
 
-
 from ragas import evaluate
 from ragas.metrics import (
     Faithfulness,
@@ -122,9 +121,9 @@ def main():
         llm=llm,
         embeddings=embeddings
     )
-    
+
     print(result)
-    
+
     df = result.to_pandas()
     print(df)
 

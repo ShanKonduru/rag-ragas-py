@@ -1,4 +1,3 @@
 @echo off
-REM python run.py
-python new_run.py
+python rag_pipe_line_main.py
 
