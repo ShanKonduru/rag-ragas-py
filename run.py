@@ -1,15 +1,30 @@
 import os
 
 from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevancy, context_relevancy
+from ragas.metrics import (
+    AnswerRelevancy,
+    Faithfulness,
+    ContextRecall,
+    ContextPrecision,
+    AnswerCorrectness,
+    AnswerSimilarity
+)
+
 from langchain.chains import RetrievalQA
-from langchain.llms import Ollama
-from langchain.vectorstores import FAISS
-from langchain.embeddings import SentenceTransformerEmbeddings
+
+from langchain_community.llms import Ollama
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_community.embeddings  import HuggingFaceEmbeddings
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.prompts import PromptTemplate
 
-
+class OllamaWrapper(Ollama):
+    def set_run_config(self, run_config):
+        # Ollama doesn't inherently use a run config in the same way as OpenAI
+        # You might need to adapt this if Ragas expects specific info in the config
+        pass
 
 def main():
     print("Hello World!!!")
@@ -23,20 +38,24 @@ def main():
     ]
 
     # 2. Split Documents
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=10)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=100, chunk_overlap=10)
     chunks = text_splitter.create_documents(documents)
 
     # 3. Create Embeddings
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") # You might need to install sentence-transformers
+    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # 4. Create Vector Store
     db = FAISS.from_documents(chunks, embeddings)
 
     # 5. Create Retriever
-    retriever = db.as_retriever(search_kwargs={"k": 2}) # Retrieve top 2 relevant chunks
+    # Retrieve top 2 relevant chunks
+    retriever = db.as_retriever(search_kwargs={"k": 2})
 
     # 6. Initialize Ollama LLM
-    ollama_llm = Ollama(base_url='http://localhost:11434', model="llama2:13b") # Replace with your Ollama URL and model
+    # Replace with your Ollama URL and model
+    ollama_llm = OllamaWrapper(base_url='http://localhost:11434', model="llama2:13b")    
+    # ollama_llm = Ollama(base_url='http://localhost:11434', model="llama2:13b")
 
     # 7. Create Prompt Template
     prompt_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say you don't know.
@@ -44,10 +63,12 @@ def main():
     {context}
 
     Question: {question}"""
-    PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+    PROMPT = PromptTemplate(template=prompt_template,
+                            input_variables=["context", "question"])
 
     # 8. Create RAG Chain
-    rag_chain = RetrievalQA.from_llm(ollama_llm, retriever=retriever, prompt=PROMPT)
+    rag_chain = RetrievalQA.from_llm(
+        ollama_llm, retriever=retriever, prompt=PROMPT, return_source_documents=True)
 
     # Example Usage
     query = "What is the capital of Canada?"
@@ -89,7 +110,8 @@ def main():
         },
         {
             "question": "What is the largest city in Canada?",
-            "ground_truths": ["Toronto"], # Ground truth not directly in our context
+            # Ground truth not directly in our context
+            "ground_truths": ["Toronto"],
         }
     ]
 
@@ -105,13 +127,27 @@ def main():
         })
 
     # 11. Evaluate using Ragas
-    metrics = [faithfulness, answer_relevancy, context_relevancy]
+    metrics = [
+        Faithfulness(llm=ollama_llm),
+        AnswerRelevancy(llm=ollama_llm),
+        ContextRecall(llm=ollama_llm),
+        ContextPrecision(llm=ollama_llm),
+        AnswerCorrectness(llm=ollama_llm),
+        AnswerSimilarity()
+        ]
     eval_results = evaluate(predictions, metrics=metrics)
 
     # 12. Print Evaluation Results
     print("\nRagas Evaluation Results:")
     print(eval_results)
-    
+
+    # 13. Convert eval_results to a Pandas DataFrame
+    df = eval_results.to_pandas()
+
+    # 14. Print the DataFrame as a table
+    print("\nRagas Evaluation Metrics:")
+    print(df)
+
 
 if __name__ == "__main__":
     main()

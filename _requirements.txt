@@ -5,9 +5,14 @@ dotenv
 langchain
 langchain-ollama
 langchain-core
+langchain-community
 sentence-transformers
+langchain-huggingface
 ragas
 faiss-cpu
 tiktoken
 urllib3
+pandas
+streamlit 
+pytest
 
