@@ -2,4 +2,12 @@ requests
 flask
 jsonify
 dotenv
+langchain
+langchain-ollama
+langchain-core
+sentence-transformers
+ragas
+faiss-cpu
+tiktoken
+urllib3
 
