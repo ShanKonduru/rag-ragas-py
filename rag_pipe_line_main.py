@@ -11,6 +11,7 @@ def main():
         return
 
     rag_pipeline = RAGPipeline(openai_api_key=openai_api_key)
+    vector_store_path = "vector_store"
 
     # 1. Load the input file to KnowledgeBase
     file_path = "inputs\\state_of_the_union.txt"
@@ -23,7 +24,11 @@ def main():
 
     # 3. Create Vector Database and Retriever
     rag_pipeline.create_vector_database(chunks)
-
+    rag_pipeline.save_vector_store(vector_store_path)
+    
+    # 3.1 Load an Existing Vector Store (comment out the creation part above)
+    # rag_pipeline.load_vector_store(vector_store_path)
+    
     # 4. Define Prompt Template
     prompt_template = """You are an assistant for question-answering tasks.
     Use the following piece of retrieved context to answer the question.
@@ -72,9 +77,10 @@ def main():
         evaluation_df = rag_pipeline.evaluate_rag(questions, ground_truths)
         print("\nRAG Evaluation Results:")
         print(evaluation_df)
+        # 9. Save the DataFrame to CSV
+        rag_pipeline.save_evaluation_to_csv(evaluation_df)
     else:
-        print("\nRetriever not initialized, skipping evaluation.")
-
+        print("\nRetriever not initialized, skipping evaluation and CSV saving.")
 
 if __name__ == "__main__":
     main()

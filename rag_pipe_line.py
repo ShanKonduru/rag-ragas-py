@@ -54,8 +54,8 @@ class RAGPipeline:
             file_path: The path to the text file.
         """
         loader = TextLoader(file_path, encoding="utf-8")
-        document = loader.load()
-        return document
+        self.document = loader.load()
+        return self.document
 
     def chunk_data(self, document):
         """
@@ -69,8 +69,8 @@ class RAGPipeline:
         """
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
-        chunks = text_splitter.split_documents(document)
-        return chunks
+        self.chunks = text_splitter.split_documents(document)
+        return self.chunks
 
     def create_vector_database(self, chunks: List):
         """
@@ -81,6 +81,36 @@ class RAGPipeline:
         """
         self.vector_db = FAISS.from_documents(chunks, self.embeddings)
         self.retriever = self.vector_db.as_retriever()
+    
+    def save_vector_store(self, save_path: str):
+        """
+        Saves the FAISS vector store to the local file system.
+
+        Args:
+            save_path: The directory where the vector store files will be saved.
+        """
+        if self.vector_db:
+            self.vector_db.save_local(save_path)
+            print(f"\nVector store saved to: {save_path}")
+        else:
+            print("\nVector store not initialized. Cannot save.")    
+
+    def load_vector_store(self, load_path: str):
+        """
+        Loads a FAISS vector store from the local file system.
+
+        Args:
+            load_path: The directory containing the saved vector store files.
+        """
+        try:
+            self.vector_db = FAISS.load_local(load_path, self.embeddings)
+            self.retriever = self.vector_db.as_retriever()
+            print(f"\nVector store loaded from: {load_path}")
+        except Exception as e:
+            print(f"\nError loading vector store from {load_path}: {e}")
+            self.vector_db = None
+            self.retriever = None
+
 
     def setup_rag_pipeline(self, prompt_template: str):
         """
@@ -178,61 +208,15 @@ class RAGPipeline:
         )
         return result.to_pandas()
 
+    def save_evaluation_to_csv(self, df: pd.DataFrame, file_path: str = "output\\rag_evaluation_results.csv"):
+        """
+        Saves the evaluation DataFrame to a CSV file.
 
-def main():
-    load_dotenv()
-    openai_api_key = os.getenv("OPENAI_API_KEY")
+        Args:
+            df: The Pandas DataFrame containing the evaluation results.
+            file_path: The path where the CSV file should be saved. Defaults to "rag_evaluation_results.csv".
+        """
+        df.to_csv(file_path, index=False)
+        print(f"\nEvaluation results saved to: {file_path}")
 
-    if not openai_api_key:
-        print("OPENAI_API_KEY not found in environment variables.")
-        return
-
-    rag_pipeline = RAGPipeline(openai_api_key=openai_api_key)
-
-    # 1. Load the input file to KnowledgeBase
-    file_path = "inputs\\state_of_the_union.txt"
-    document = rag_pipeline.load_knowledge_base(file_path)
-    print("Loaded Document:", document)
-
-    # 2. Chunking the Data
-    chunks = rag_pipeline.chunk_data(document)
-    print("\nChunked Data (first chunk):", chunks[0])
-
-    # 3. Create Vector Database and Retriever
-    rag_pipeline.create_vector_database(chunks)
-
-    # 4. Define Prompt Template
-    prompt_template = """You are an assistant for question-answering tasks.
-    Use the following piece of retrieved context to answer the question.
-    if you don't known the answer, just say that you don't know.
-    Use two sentences maximum and keep the answer concise.
-    Question: {question}
-    Context: {context}
-    Answer:
-    """
-
-    # 5. Set up RAG Pipeline
-    rag_pipeline.setup_rag_pipeline(prompt_template)
-
-    # 6. Test One Question
-    test_question = "what did president say about Justic Breyer?"
-    result = rag_pipeline.query(test_question)
-    print(f"\nQuestion: {test_question}")
-    print(f"Answer: {result}")
-
-    # 7. Generate Questions and Ground Truths (basic example)
-    questions, ground_truths = rag_pipeline.generate_questions_and_ground_truths(document, num_questions=6)
-    print("\nGenerated Questions:", questions)
-    print("Generated Ground Truths:", ground_truths)
-
-    # 8. Evaluate RAG Pipeline
-    if rag_pipeline.retriever:
-        evaluation_df = rag_pipeline.evaluate_rag(questions, ground_truths)
-        print("\nRAG Evaluation Results:")
-        print(evaluation_df)
-    else:
-        print("\nRetriever not initialized, skipping evaluation.")
-
-
-if __name__ == "__main__":
-    main()
+    
