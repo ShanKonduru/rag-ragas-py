@@ -78,6 +78,7 @@ def main():
 
     rag_pipeline = RAGPipeline(openai_api_key=openai_api_key)
 
+    run_evaluate_code = True # False #  
     kb_to_read =   "Canada" # "CTO-ISB" # "state_of_the_union" # "VedicMetaverses" #  
     
     folder_info_iterator = FolderInfoIterator(input_folder_info)
@@ -129,35 +130,8 @@ def main():
     print(f"Questions for '{vector_output_name.get('set_of_ground_truths')}': {    set_of_ground_truths}")
     print("*******************************************")
 
-    # set_of_questions = [
-    #     "What are the two official languages of Canada?",
-    #     "Who is the current Prime Minister of Canada?",
-    #     "Describe the main geographical regions of Canada.",
-    #     "Which national symbol of Canada?",
-    #     "What was the weather like in Vancouver, British Columbia on March 15, 2024?",
-    #     "What is the most popular Canadian television show currently streaming on major platforms?",
-    #     "What is Canada's national winter sport?",
-    #     "Why do we have maple leaf on the flag",
-    #     "Considering its geography and major industries, what are some significant economic strengths of Canada?"
-    # ]
-
     additional_context = " The Canadian Shield is a vast, ancient geological formation covering much of central and eastern Canada. It is characterized by exposed bedrock, numerous lakes and forests, and significant mineral deposits., The Western Cordillera is a complex region of mountain ranges, including the Rocky Mountains and the Coast Mountains, plateaus, and valleys along the western edge of Canada. It is known for its rugged terrain and diverse ecosystems., The Interior Plains lie between the Canadian Shield and the Western Cordillera and are characterized by relatively flat grasslands, fertile agricultural land, and sedimentary rock formations., The Great Lakes-St. Lawrence Lowlands are a low-lying region in southeastern Canada bordering the Great Lakes and the St. Lawrence River. This area has fertile soil and is a major center for agriculture and population., The Appalachian Region, located in Eastern Canada, consists of older, eroded mountain ranges, rolling hills, and coastal plains. It has a diverse landscape of forests and maritime environments., The Arctic Region encompasses the northernmost parts of Canada, characterized by tundra vegetation, permafrost, ice-covered land and sea, and a harsh climate."
-
     
-    # set_of_ground_truths = [
-    #     "English and French",
-    #     "Mark Carney",
-    #     "the Rockies, the Appalachians, vast prairies, boreal forests, tundra, and extensive coastlines",
-    #     "maple leaf",
-    #     "likely mild and rainy, typical for that time of year. Specific details would include the temperature (around 8-12°C), precipitation",
-    #     "Northern Lights Mystery on StreamFlix",
-    #     "Hockey and Lacrosse",
-    #     "national symbol",
-    #     "Natural resources like oil, gas, minerals, and timber, as well as strong industries in automotive, aerospace, technology, and finance"
-    # ]
-
-    skip_code = True
-
     results = []
     contexts = []
     for test_question in set_of_questions:
@@ -170,10 +144,10 @@ def main():
         page_contents = [doc.page_content for doc in relevant_docs]
         contexts.append(page_contents)
     
-        if (skip_code):
+        if (not run_evaluate_code):
             os.system("pause")
 
-    if (not skip_code):
+    if (run_evaluate_code):
         # 7. Use Hardcoded Questions and Ground Truths (basic example)
         questions = set_of_questions
         ground_truths = set_of_ground_truths
