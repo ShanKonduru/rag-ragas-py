@@ -78,7 +78,7 @@ def main():
 
     rag_pipeline = RAGPipeline(openai_api_key=openai_api_key)
 
-    kb_to_read = "Canada" # "CTO-ISB" # "state_of_the_union" # "VedicMetaverses" #  
+    kb_to_read =   "Canada" # "CTO-ISB" # "state_of_the_union" # "VedicMetaverses" #  
     
     folder_info_iterator = FolderInfoIterator(input_folder_info)
     vector_output_name = folder_info_iterator.get_by_attribute("vector_output_name", kb_to_read)
