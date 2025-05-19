@@ -7,25 +7,66 @@ input_folder_info = [
     {
         "input_folder_path": "inputs\\CTO-ISB-KB",
         "vector_output_name": "CTO-ISB",
-        "vector_output_path": "vector_store\\CTO-ISB-KB"
+        "vector_output_path": "vector_store\\CTO-ISB-KB",
+        "set_of_questions" : [
+            "what is fullform of CTO"
+        ],
+        "set_of_ground_truths" : [
+            "Cheif Technology Officer"
+        ]
     },
     {
         "input_folder_path": "inputs\\Canada-KB",
         "vector_output_name": "Canada",
-        "vector_output_path": "vector_store\\Canada-KB"
+        "vector_output_path": "vector_store\\Canada-KB",
+        "set_of_questions" : [
+            "What are the two official languages of Canada?",
+            "Who is the current Prime Minister of Canada?",
+            "Describe the main geographical regions of Canada.",
+            "Which national symbol of Canada?",
+            "What was the weather like in Vancouver, British Columbia on March 15, 2024?",
+            "What is the most popular Canadian television show currently streaming on major platforms?",
+            "What is Canada's national winter sport?",
+            "Why do we have maple leaf on the flag",
+            "Considering its geography and major industries, what are some significant economic strengths of Canada?"            
+        ],
+        "set_of_ground_truths" : [
+            "English and French",
+            "Mark Carney",
+            "the Rockies, the Appalachians, vast prairies, boreal forests, tundra, and extensive coastlines",
+            "maple leaf",
+            "likely mild and rainy, typical for that time of year. Specific details would include the temperature (around 8-12°C), precipitation",
+            "Northern Lights Mystery on StreamFlix",
+            "Hockey and Lacrosse",
+            "national symbol",
+            "Natural resources like oil, gas, minerals, and timber, as well as strong industries in automotive, aerospace, technology, and finance"
+        ]
     },
     {
-        "input_folder_path": "inputs\\VedicMetaverses-KB",
+        "input_folder_path": "inputs\\VedicMetaverses-kb",
         "vector_output_name": "VedicMetaverses",
-        "vector_output_path": "vector_store\\VedicMetaverses-KB"
+        "vector_output_path": "vector_store\\VedicMetaverses-kb",
+        "set_of_questions" : [
+            "what is Vedic Metaverses",
+            "what services Vedic Metaverses offer",
+        ],
+        "set_of_ground_truths" : [
+            "Vedic Metaverses is a non-profit organization",
+            "Vedic Metaverses is into preserving culture and traditions",
+        ]
     },
     {
         "input_folder_path": "inputs\\state_of_the_union-kb",
         "vector_output_name": "state_of_the_union",
-        "vector_output_path": "vector_store\\state_of_the_union-kb"
+        "vector_output_path": "vector_store\\state_of_the_union-kb",
+        "set_of_questions" : [
+            "Can you summarize this document?",
+        ],
+        "set_of_ground_truths" : [
+            "give summary of this document",
+        ]
     }
 ]
-
 
 def main():
     load_dotenv()
@@ -37,16 +78,16 @@ def main():
 
     rag_pipeline = RAGPipeline(openai_api_key=openai_api_key)
 
-    kb_to_read = "Canada"
+    kb_to_read = "Canada" # "CTO-ISB" # "state_of_the_union" # "VedicMetaverses" #  
+    
     folder_info_iterator = FolderInfoIterator(input_folder_info)
-    vector_store_path = folder_info_iterator.get_by_attribute(
-        "vector_output_name", kb_to_read)
+    vector_output_name = folder_info_iterator.get_by_attribute("vector_output_name", kb_to_read)
+    vector_store_path  = vector_output_name.get("vector_output_path")
     print(f"Item with vector_output_name '{kb_to_read}': {vector_store_path}")
 
     # 1. Load the input file to KnowledgeBase
-    folder_path = folder_info_iterator.get_by_attribute(
-        "input_folder_path", kb_to_read)
-    print(f"Item with vector_output_name '{kb_to_read}': {vector_store_path}")
+    folder_path  = vector_output_name.get("input_folder_path")
+    print(f"Item with input_folder_path '{kb_to_read}': {folder_path}")
 
     document = rag_pipeline.load_knowledge_base_directory(folder_path)
 
@@ -57,7 +98,7 @@ def main():
 
     # 2. Chunking the Data
     chunks = rag_pipeline.chunk_data(document)
-    print("\nChunked Data (first chunk):", chunks[0])
+    print("\nChunked Data (first chunk):", chunks [0])
 
     # 3. Create Vector Database and Retriever
     rag_pipeline.create_vector_database(chunks)
@@ -80,31 +121,42 @@ def main():
     rag_pipeline.setup_rag_pipeline(prompt_template)
 
     # 6. Test One Question
-    set_of_questions = [
-        "What are the two official languages of Canada?",
-        "Who is the current Prime Minister of Canada?",
-        "Describe the main geographical regions of Canada.",
-        "Which national symbol of Canada?",
-        "What was the weather like in Vancouver, British Columbia on March 15, 2024?",
-        "What is the most popular Canadian television show currently streaming on major platforms?",
-        "What is Canada's national winter sport?",
-        "Why do we have maple leaf on the flag",
-        "Considering its geography and major industries, what are some significant economic strengths of Canada?"
-    ]
+    set_of_questions = vector_output_name.get("set_of_questions")
+    print(f"Questions for '{vector_output_name.get('set_of_questions')}': {set_of_questions}")
+    print("*******************************************")
+    
+    set_of_ground_truths = vector_output_name.get("set_of_ground_truths")
+    print(f"Questions for '{vector_output_name.get('set_of_ground_truths')}': {    set_of_ground_truths}")
+    print("*******************************************")
+
+    # set_of_questions = [
+    #     "What are the two official languages of Canada?",
+    #     "Who is the current Prime Minister of Canada?",
+    #     "Describe the main geographical regions of Canada.",
+    #     "Which national symbol of Canada?",
+    #     "What was the weather like in Vancouver, British Columbia on March 15, 2024?",
+    #     "What is the most popular Canadian television show currently streaming on major platforms?",
+    #     "What is Canada's national winter sport?",
+    #     "Why do we have maple leaf on the flag",
+    #     "Considering its geography and major industries, what are some significant economic strengths of Canada?"
+    # ]
 
     additional_context = " The Canadian Shield is a vast, ancient geological formation covering much of central and eastern Canada. It is characterized by exposed bedrock, numerous lakes and forests, and significant mineral deposits., The Western Cordillera is a complex region of mountain ranges, including the Rocky Mountains and the Coast Mountains, plateaus, and valleys along the western edge of Canada. It is known for its rugged terrain and diverse ecosystems., The Interior Plains lie between the Canadian Shield and the Western Cordillera and are characterized by relatively flat grasslands, fertile agricultural land, and sedimentary rock formations., The Great Lakes-St. Lawrence Lowlands are a low-lying region in southeastern Canada bordering the Great Lakes and the St. Lawrence River. This area has fertile soil and is a major center for agriculture and population., The Appalachian Region, located in Eastern Canada, consists of older, eroded mountain ranges, rolling hills, and coastal plains. It has a diverse landscape of forests and maritime environments., The Arctic Region encompasses the northernmost parts of Canada, characterized by tundra vegetation, permafrost, ice-covered land and sea, and a harsh climate."
 
-    set_of_ground_truths = [
-        "English and French",
-        "Mark Carney",
-        "the Rockies, the Appalachians, vast prairies, boreal forests, tundra, and extensive coastlines",
-        "maple leaf",
-        "likely mild and rainy, typical for that time of year. Specific details would include the temperature (around 8-12°C), precipitation",
-        "Northern Lights Mystery on StreamFlix",
-        "Hockey and Lacrosse",
-        "national symbol",
-        "Natural resources like oil, gas, minerals, and timber, as well as strong industries in automotive, aerospace, technology, and finance"
-    ]
+    
+    # set_of_ground_truths = [
+    #     "English and French",
+    #     "Mark Carney",
+    #     "the Rockies, the Appalachians, vast prairies, boreal forests, tundra, and extensive coastlines",
+    #     "maple leaf",
+    #     "likely mild and rainy, typical for that time of year. Specific details would include the temperature (around 8-12°C), precipitation",
+    #     "Northern Lights Mystery on StreamFlix",
+    #     "Hockey and Lacrosse",
+    #     "national symbol",
+    #     "Natural resources like oil, gas, minerals, and timber, as well as strong industries in automotive, aerospace, technology, and finance"
+    # ]
+
+    skip_code = True
 
     results = []
     contexts = []
@@ -117,10 +169,10 @@ def main():
             test_question)
         page_contents = [doc.page_content for doc in relevant_docs]
         contexts.append(page_contents)
+    
+        if (skip_code):
+            os.system("pause")
 
-        # os.system("pause")
-
-    skip_code = False
     if (not skip_code):
         # 7. Use Hardcoded Questions and Ground Truths (basic example)
         questions = set_of_questions

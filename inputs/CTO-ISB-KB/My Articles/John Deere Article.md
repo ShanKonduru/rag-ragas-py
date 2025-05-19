@@ -1,1 +1,0 @@
-![John Deere Article](John Deere Article.png)
