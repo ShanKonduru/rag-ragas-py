@@ -60,7 +60,11 @@ class RAGPipeline:
     def load_knowledge_base_directory(self, dir_path: str):
         """Loads all text files from a directory."""
         loader = DirectoryLoader(
-            dir_path, glob="**/*.txt", loader_cls=TextLoader, show_progress=True, use_multithreading=True)
+            dir_path, glob="**/*.txt", 
+            loader_cls=TextLoader, 
+            show_progress=True, 
+            use_multithreading=True, 
+            loader_kwargs={'encoding': 'utf-8'})
         self.document = loader.load()
         return self.document
 
@@ -89,7 +93,7 @@ class RAGPipeline:
         self.vector_db = FAISS.from_documents(chunks, self.embeddings)
         self.retriever = self.vector_db.as_retriever()
 
-    def save_vector_store(self, save_path: str):
+    def save_vector_store(self, save_path: str, index: str):
         """
         Saves the FAISS vector store to the local file system.
 
@@ -97,7 +101,7 @@ class RAGPipeline:
             save_path: The directory where the vector store files will be saved.
         """
         if self.vector_db:
-            self.vector_db.save_local(save_path)
+            self.vector_db.save_local(save_path, index)
             print(f"\nVector store saved to: {save_path}")
         else:
             print("\nVector store not initialized. Cannot save.")
