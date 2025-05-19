@@ -58,6 +58,9 @@ def main():
         "Why do we have maple leaf on the flag",
         "Considering its geography and major industries, what are some significant economic strengths of Canada?"
     ]
+    
+    additional_context = " The Canadian Shield is a vast, ancient geological formation covering much of central and eastern Canada. It is characterized by exposed bedrock, numerous lakes and forests, and significant mineral deposits., The Western Cordillera is a complex region of mountain ranges, including the Rocky Mountains and the Coast Mountains, plateaus, and valleys along the western edge of Canada. It is known for its rugged terrain and diverse ecosystems., The Interior Plains lie between the Canadian Shield and the Western Cordillera and are characterized by relatively flat grasslands, fertile agricultural land, and sedimentary rock formations., The Great Lakes-St. Lawrence Lowlands are a low-lying region in southeastern Canada bordering the Great Lakes and the St. Lawrence River. This area has fertile soil and is a major center for agriculture and population., The Appalachian Region, located in Eastern Canada, consists of older, eroded mountain ranges, rolling hills, and coastal plains. It has a diverse landscape of forests and maritime environments., The Arctic Region encompasses the northernmost parts of Canada, characterized by tundra vegetation, permafrost, ice-covered land and sea, and a harsh climate."
+    
     set_of_ground_truths = [
         "English and French",
         "Mark Carney",
