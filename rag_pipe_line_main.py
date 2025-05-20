@@ -5,17 +5,6 @@ from rag_pipe_line import RAGPipeline
 
 input_folder_info = [
     {
-        "input_folder_path": "inputs\\CTO-ISB-KB",
-        "vector_output_name": "CTO-ISB",
-        "vector_output_path": "vector_store\\CTO-ISB-KB",
-        "set_of_questions" : [
-            "what is fullform of CTO"
-        ],
-        "set_of_ground_truths" : [
-            "Cheif Technology Officer"
-        ]
-    },
-    {
         "input_folder_path": "inputs\\Canada-KB",
         "vector_output_name": "Canada",
         "vector_output_path": "vector_store\\Canada-KB",
@@ -40,30 +29,6 @@ input_folder_info = [
             "Hockey and Lacrosse",
             "national symbol",
             "Natural resources like oil, gas, minerals, and timber, as well as strong industries in automotive, aerospace, technology, and finance"
-        ]
-    },
-    {
-        "input_folder_path": "inputs\\VedicMetaverses-kb",
-        "vector_output_name": "VedicMetaverses",
-        "vector_output_path": "vector_store\\VedicMetaverses-kb",
-        "set_of_questions" : [
-            "what is Vedic Metaverses",
-            "what services Vedic Metaverses offer",
-        ],
-        "set_of_ground_truths" : [
-            "Vedic Metaverses is a non-profit organization",
-            "Vedic Metaverses is into preserving culture and traditions",
-        ]
-    },
-    {
-        "input_folder_path": "inputs\\state_of_the_union-kb",
-        "vector_output_name": "state_of_the_union",
-        "vector_output_path": "vector_store\\state_of_the_union-kb",
-        "set_of_questions" : [
-            "Can you summarize this document?",
-        ],
-        "set_of_ground_truths" : [
-            "give summary of this document",
         ]
     }
 ]
